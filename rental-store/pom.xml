@@ -14,7 +14,7 @@
     <name>rental-store</name>
     <description>Rental Store</description>
     <properties>
-        <java.version>26</java.version>
+        <java.version>25</java.version>
     </properties>
     <dependencies>
         <dependency>
