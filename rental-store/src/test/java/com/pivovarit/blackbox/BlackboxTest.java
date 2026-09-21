@@ -1,6 +1,7 @@
 package com.pivovarit.blackbox;
 
-import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,14 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
+
+import java.util.List;
+import java.util.Map;
+
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 
 @Testcontainers
 class BlackboxTest {
@@ -44,7 +53,7 @@ class BlackboxTest {
 
     @Test
     void shouldRun() throws Exception {
-        RestAssured.given()
+        given()
           .port(app.getMappedPort(8080))
           .when()
           .get("/health")
@@ -54,8 +63,44 @@ class BlackboxTest {
 
     @Test
     void shouldCreateMovie() {
-        // TODO create movie over REST
-        // check database content
+        given()
+          .port(app.getMappedPort(8080))
+          .contentType(ContentType.JSON)
+          .body("""
+            {"id": 42, "title": "The Matrix", "type": "REGULAR"}
+            """)
+          .when()
+          .post("/movies")
+          .then()
+          .statusCode(200);
+
+        assertThat(Jdbi.create(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())
+          .<List<Map<String, Object>>, RuntimeException>withHandle(handle -> handle
+          .createQuery("SELECT id, title, type FROM movies WHERE id = :id")
+          .bind("id", 42L)
+          .mapToMap()
+          .list())).containsExactly(Map.of(
+          "id", 42L,
+          "title", "The Matrix",
+          "type", "REGULAR"));
+
+        given()
+          .port(app.getMappedPort(8080))
+          .when()
+          .get("/movies/42")
+          .then()
+          .statusCode(200)
+          .body("id.id", equalTo(42))
+          .body("title", equalTo("The Matrix"))
+          .body("type", equalTo("REGULAR"));
+
+        given()
+          .port(app.getMappedPort(8080))
+          .when()
+          .get("/movies")
+          .then()
+          .statusCode(200)
+          .body("title", hasItem("The Matrix"));
     }
 
     private static class ApplicationContainer extends GenericContainer<ApplicationContainer> {
