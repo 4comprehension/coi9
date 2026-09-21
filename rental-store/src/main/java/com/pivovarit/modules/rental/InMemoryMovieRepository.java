@@ -1,7 +1,4 @@
-package com.pivovarit.movies.repository;
-
-import com.pivovarit.movies.domain.Movie;
-import com.pivovarit.movies.domain.MovieId;
+package com.pivovarit.modules.rental;
 
 import java.util.Collection;
 import java.util.List;
@@ -9,7 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class InMemoryMovieRepository implements MovieRepository {
+class InMemoryMovieRepository implements MovieRepository {
 
     private final Map<MovieId, Movie> movies = new ConcurrentHashMap<>();
 

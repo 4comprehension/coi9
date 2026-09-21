@@ -1,12 +1,9 @@
-package com.pivovarit.movies.repository;
-
-import com.pivovarit.movies.domain.Movie;
-import com.pivovarit.movies.domain.MovieId;
+package com.pivovarit.modules.rental;
 
 import java.util.Collection;
 import java.util.Optional;
 
-public interface MovieRepository {
+interface MovieRepository {
     MovieId save(Movie movie);
     Collection<Movie> findAll();
     Optional<Movie> findByTitle(String title);

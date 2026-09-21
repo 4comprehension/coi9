@@ -1,8 +1,8 @@
-package com.pivovarit.movies.web;
+package com.pivovarit.modules.rental.web;
 
-import com.pivovarit.movies.api.MovieAddRequest;
-import com.pivovarit.movies.domain.Movie;
-import com.pivovarit.movies.service.MovieService;
+import com.pivovarit.modules.rental.MovieAddRequest;
+import com.pivovarit.modules.rental.MovieDto;
+import com.pivovarit.modules.rental.RentalFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,9 +16,9 @@ import java.util.Collection;
 class MovieController {
 
     // https://odrotbohm.de/2013/11/why-field-injection-is-evil/
-    private final MovieService movieService;
+    private final RentalFacade movieService;
 
-    public MovieController(MovieService movieService) {
+    public MovieController(RentalFacade movieService) {
         this.movieService = movieService;
     }
 
@@ -28,13 +28,13 @@ class MovieController {
     }
 
     @GetMapping("/movies")
-    public Collection<Movie> findAll() {
+    public Collection<MovieDto> findAll() {
 
         return movieService.findAll();
     }
 
     @GetMapping("/movies/{id}")
-    public ResponseEntity<Movie> getMovieById(@PathVariable int id) {
+    public ResponseEntity<MovieDto> getMovieById(@PathVariable int id) {
         return ResponseEntity.of(movieService.findById(id));
     }
 

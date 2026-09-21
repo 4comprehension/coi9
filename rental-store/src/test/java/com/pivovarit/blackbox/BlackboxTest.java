@@ -90,7 +90,7 @@ class BlackboxTest {
           .get("/movies/42")
           .then()
           .statusCode(200)
-          .body("id.id", equalTo(42))
+          .body("id", equalTo(42))
           .body("title", equalTo("The Matrix"))
           .body("type", equalTo("REGULAR"));
 

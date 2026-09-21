@@ -1,8 +1,5 @@
-package com.pivovarit.movies.repository;
+package com.pivovarit.modules.rental;
 
-import com.pivovarit.movies.domain.Movie;
-import com.pivovarit.movies.domain.MovieId;
-import com.pivovarit.movies.domain.MovieType;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
 
@@ -10,7 +7,7 @@ import javax.sql.DataSource;
 import java.util.Collection;
 import java.util.Optional;
 
-public class JdbiMovieRepository implements MovieRepository {
+class JdbiMovieRepository implements MovieRepository {
 
     private final Jdbi jdbi;
 
