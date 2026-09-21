@@ -15,21 +15,24 @@ public class InMemoryMovieRepository implements MovieRepository {
 
     @Override
     public MovieId save(Movie movie) {
-        return null;
+        movies.put(movie.id(), movie);
+        return movie.id();
     }
 
     @Override
     public Collection<Movie> findAll() {
-        return List.of();
+        return List.copyOf(movies.values());
     }
 
     @Override
     public Optional<Movie> findByTitle(String title) {
-        return Optional.empty();
+        return movies.values().stream()
+          .filter(movie -> movie.title().equals(title))
+          .findFirst();
     }
 
     @Override
     public Optional<Movie> findById(MovieId id) {
-        return Optional.empty();
+        return Optional.ofNullable(movies.get(id));
     }
 }

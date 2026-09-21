@@ -1,1 +1,17 @@
+GET http://localhost:8081/movies
+
+###
+
 GET http://localhost:8081/movies/42
+
+###
+POST http://localhost:8081/movies
+Content-Type: application/json
+
+{
+  "id": 42,
+  "title": "Avengers: Doomsday",
+  "type": "NEW"
+}
+
+
