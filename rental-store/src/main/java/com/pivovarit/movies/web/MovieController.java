@@ -3,7 +3,6 @@ package com.pivovarit.movies.web;
 import com.pivovarit.movies.api.MovieAddRequest;
 import com.pivovarit.movies.domain.Movie;
 import com.pivovarit.movies.service.MovieService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 class MovieController {
@@ -25,8 +22,14 @@ class MovieController {
         this.movieService = movieService;
     }
 
+    @GetMapping("/health")
+    public String health() {
+        return "ok";
+    }
+
     @GetMapping("/movies")
     public Collection<Movie> findAll() {
+
         return movieService.findAll();
     }
 
