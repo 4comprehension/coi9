@@ -1,5 +1,6 @@
 package com.pivovarit.blackbox;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import io.restassured.http.ContentType;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,16 @@ class BlackboxTest {
 
     private static final Network network = Network.newNetwork();
 
+    public static final int WIREMOCK_PORT = 8080;
+
+    @Container
+    static final WireMockContainer wiremock = new WireMockContainer()
+      .withNetwork(network)
+      .withNetworkAliases("wiremock")
+      .withLogConsumer(new Slf4jLogConsumer(log).withPrefix("postgres"))
+      .withExposedPorts(WIREMOCK_PORT)
+      .waitingFor(Wait.forHttp("/__admin/health").forStatusCode(200));
+
     @Container
     static final PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:18")
       .withNetwork(network)
@@ -41,20 +52,21 @@ class BlackboxTest {
 
     @Container
     static ApplicationContainer app = new ApplicationContainer()
-      .dependsOn(postgres)
+      .dependsOn(postgres, wiremock)
       .withNetwork(network)
       .withEnv("APPLICATION_PROFILE", "prod")
       .withEnv("POSTGRES_URL", "jdbc:postgresql://postgres:5432/postgres")
       .withEnv("POSTGRES_USER", "postgres")
       .withEnv("POSTGRES_PASSWORD", "password")
-      .withExposedPorts(8080)
+      .withEnv("SUMMARIES_URL", "http://wiremock:%d".formatted(WIREMOCK_PORT))
+      .withExposedPorts(WIREMOCK_PORT)
       .withLogConsumer(new Slf4jLogConsumer(log).withPrefix("rental-store"))
       .waitingFor(Wait.forHttp("/health").forStatusCode(200));
 
     @Test
     void shouldRun() throws Exception {
         given()
-          .port(app.getMappedPort(8080))
+          .port(app.getMappedPort(WIREMOCK_PORT))
           .when()
           .get("/health")
           .then()
@@ -64,7 +76,7 @@ class BlackboxTest {
     @Test
     void shouldCreateMovie() {
         given()
-          .port(app.getMappedPort(8080))
+          .port(app.getMappedPort(WIREMOCK_PORT))
           .contentType(ContentType.JSON)
           .body("""
             {"id": 42, "title": "The Matrix", "type": "REGULAR"}
@@ -76,16 +88,20 @@ class BlackboxTest {
 
         assertThat(Jdbi.create(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())
           .<List<Map<String, Object>>, RuntimeException>withHandle(handle -> handle
-          .createQuery("SELECT id, title, type FROM movies WHERE id = :id")
-          .bind("id", 42L)
-          .mapToMap()
-          .list())).containsExactly(Map.of(
+            .createQuery("SELECT id, title, type FROM movies WHERE id = :id")
+            .bind("id", 42L)
+            .mapToMap()
+            .list())).containsExactly(Map.of(
           "id", 42L,
           "title", "The Matrix",
           "type", "REGULAR"));
 
+        var inceptionSummary = "inception summary";
+
+        stubMovieSummary(42, inceptionSummary);
+
         given()
-          .port(app.getMappedPort(8080))
+          .port(app.getMappedPort(WIREMOCK_PORT))
           .when()
           .get("/movies/42")
           .then()
@@ -93,10 +109,10 @@ class BlackboxTest {
           .body("id", equalTo(42))
           .body("title", equalTo("The Matrix"))
           .body("type", equalTo("REGULAR"))
-          .body("summary", equalTo("A skilled thief who steals secrets through dream-sharing technology is given a chance to have his criminal history erased by planting an idea into a target's subconscious."));
+          .body("summary", equalTo(inceptionSummary));
 
         given()
-          .port(app.getMappedPort(8080))
+          .port(app.getMappedPort(WIREMOCK_PORT))
           .when()
           .get("/movies")
           .then()
@@ -108,5 +124,24 @@ class BlackboxTest {
         ApplicationContainer() {
             super(DockerImageName.parse("rental-store:snapshot"));
         }
+    }
+
+    private static class WireMockContainer extends GenericContainer<WireMockContainer> {
+        WireMockContainer() {
+            super(DockerImageName.parse("wiremock/wiremock:3x-alpine"));
+        }
+
+        public WireMock wiremock() {
+            return new WireMock(getHost(), getMappedPort(WIREMOCK_PORT));
+        }
+    }
+
+    private void stubMovieSummary(int movieId, String summary) {
+        wiremock.wiremock()
+          .register(WireMock.get(WireMock.urlEqualTo("/summaries/" + movieId)).willReturn(WireMock.okJson("""
+            {
+              "summary": "%s"
+            }
+            """.formatted(summary))));
     }
 }

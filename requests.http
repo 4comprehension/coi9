@@ -15,8 +15,8 @@ Content-Type: application/json
 
 {
   "id": 42,
-  "title": "Avengers: Doomsday",
-  "type": "NEW"
+  "title": "Inception",
+  "type": "REGULAR"
 }
 
 
