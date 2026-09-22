@@ -13,4 +13,8 @@ public final class SummaryFacade {
     public Optional<String> getSummary(long movieId) {
         return movieSummaryRepository.getSummary(movieId);
     }
+
+    public boolean createOrUpdate(long movieId, String summary) {
+        return false;
+    }
 }
