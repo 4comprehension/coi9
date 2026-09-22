@@ -2,13 +2,17 @@ package com.pivovarit.modules.rental;
 
 import com.pivovarit.modules.rental.api.MovieAddRequest;
 import com.pivovarit.modules.rental.api.MovieDto;
-import com.pivovarit.modules.summary.SummaryFacade;
+import com.pivovarit.modules.rental.api.MovieSummaryUpdatedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
 
 public class RentalFacade {
+
+    private static final Logger log = LoggerFactory.getLogger(RentalFacade.class);
 
     private final SummaryRepository summaries;
     private final MovieRepository movieRepository;
@@ -29,6 +33,10 @@ public class RentalFacade {
 
     public Collection<MovieDto> findAll() {
         return movieRepository.findAll().stream().map(toDto()).toList();
+    }
+
+    public void onMovieSummaryChanged(MovieSummaryUpdatedEvent event) {
+        log.info("received summary update for movieId={}", event.movieId());
     }
 
     private Function<Movie, MovieDto> toDto() {

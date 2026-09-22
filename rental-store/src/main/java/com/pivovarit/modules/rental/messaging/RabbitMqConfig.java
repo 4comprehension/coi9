@@ -1,0 +1,52 @@
+package com.pivovarit.modules.rental.messaging;
+
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.support.converter.JacksonJavaTypeMapper;
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+class RabbitMqConfig {
+
+    static final String EXCHANGE = "movie-summaries";
+    static final String ROUTING_KEY_SUMMARY_UPDATED = "movie-summary.updated";
+    static final String QUEUE_SUMMARY_UPDATED = "movie-summary.updated.queue";
+
+    @Bean
+    MessageConverter messageConverter() {
+        JacksonJsonMessageConverter converter = new JacksonJsonMessageConverter();
+        converter.setTypePrecedence(JacksonJavaTypeMapper.TypePrecedence.INFERRED);
+        return converter;
+    }
+
+    @Bean
+    RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
+        RabbitAdmin rabbitAdmin = new RabbitAdmin(connectionFactory);
+        rabbitAdmin.setIgnoreDeclarationExceptions(true);
+        return rabbitAdmin;
+    }
+
+    @Bean
+    TopicExchange movieSummariesExchange() {
+        return new TopicExchange(EXCHANGE);
+    }
+
+    @Bean
+    Queue movieSummaryUpdatedQueue() {
+        return new Queue(QUEUE_SUMMARY_UPDATED);
+    }
+
+    @Bean
+    Binding movieSummaryUpdatedBinding() {
+        return BindingBuilder.bind(movieSummaryUpdatedQueue())
+          .to(movieSummariesExchange())
+          .with(ROUTING_KEY_SUMMARY_UPDATED);
+    }
+}

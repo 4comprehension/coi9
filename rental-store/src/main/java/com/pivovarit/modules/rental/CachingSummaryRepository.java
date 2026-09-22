@@ -2,11 +2,15 @@ package com.pivovarit.modules.rental;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Optional;
 
 class CachingSummaryRepository implements SummaryRepository {
+
+    private static final Logger log = LoggerFactory.getLogger(CachingSummaryRepository.class);
 
     private final SummaryRepository delegate;
     private final Cache<Long, Optional<String>> cache;
@@ -34,5 +38,11 @@ class CachingSummaryRepository implements SummaryRepository {
         }
 
         return cache.getIfPresent(movieId);
+    }
+
+    @Override
+    public void updateSummary(long movieId, String summary) {
+        log.info("refreshing cache for movie id: {}", movieId);
+        cache.put(movieId, Optional.of(summary));
     }
 }
