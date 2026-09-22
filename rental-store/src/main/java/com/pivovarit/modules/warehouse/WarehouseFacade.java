@@ -6,7 +6,7 @@ public class WarehouseFacade {
 
     private final WarehouseRepository warehouseRepository;
 
-    public WarehouseFacade(WarehouseRepository warehouseRepository) {
+    WarehouseFacade(WarehouseRepository warehouseRepository) {
         this.warehouseRepository = warehouseRepository;
     }
 

@@ -6,7 +6,7 @@ public class AccountFacade {
 
     private final AccountRepository accountRepository;
 
-    public AccountFacade(AccountRepository accountRepository) {
+    AccountFacade(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 

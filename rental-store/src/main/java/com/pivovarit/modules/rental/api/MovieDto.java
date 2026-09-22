@@ -1,4 +1,4 @@
-package com.pivovarit.modules.rental;
+package com.pivovarit.modules.rental.api;
 
 public record MovieDto(long id, String title, String type) {
 }

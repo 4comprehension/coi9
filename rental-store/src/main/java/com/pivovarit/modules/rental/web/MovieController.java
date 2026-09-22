@@ -1,7 +1,7 @@
 package com.pivovarit.modules.rental.web;
 
-import com.pivovarit.modules.rental.MovieAddRequest;
-import com.pivovarit.modules.rental.MovieDto;
+import com.pivovarit.modules.rental.api.MovieAddRequest;
+import com.pivovarit.modules.rental.api.MovieDto;
 import com.pivovarit.modules.rental.RentalFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

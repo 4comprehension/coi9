@@ -1,5 +1,7 @@
 package com.pivovarit.modules.rental;
 
+import com.pivovarit.modules.rental.api.MovieAddRequest;
+import com.pivovarit.modules.rental.api.MovieDto;
 import org.junit.jupiter.api.RepeatedTest;
 
 import static org.assertj.core.api.Assertions.assertThat;

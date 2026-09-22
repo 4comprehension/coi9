@@ -1,6 +1,7 @@
 package com.pivovarit.modules.rental;
 
-import com.pivovarit.modules.account.AccountFacade;
+import com.pivovarit.modules.rental.api.MovieAddRequest;
+import com.pivovarit.modules.rental.api.MovieDto;
 
 import java.util.Collection;
 import java.util.Optional;
