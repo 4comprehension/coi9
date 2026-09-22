@@ -10,6 +10,7 @@
 
     <modules>
         <module>rental-store</module>
+        <module>movie-summaries</module>
     </modules>
 
     <properties>
