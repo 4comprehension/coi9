@@ -20,6 +20,11 @@ class SummariesController {
         this.summaries = summaries;
     }
 
+    @GetMapping("/health")
+    public String health() {
+        return "ok";
+    }
+
     @GetMapping("/summaries/{id}")
     public ResponseEntity<SummaryResponse> findById(@PathVariable int id) {
         if (ThreadLocalRandom.current().nextBoolean()) {
