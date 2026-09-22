@@ -2,8 +2,6 @@ package com.pivovarit.modules.rental;
 
 import com.pivovarit.modules.rental.api.MovieAddRequest;
 import com.pivovarit.modules.rental.api.MovieDto;
-import com.pivovarit.modules.summary.MovieSummaryRepository;
-import com.pivovarit.modules.summary.SummaryFacade;
 import org.junit.jupiter.api.RepeatedTest;
 
 import java.util.Optional;
@@ -33,6 +31,6 @@ class RentalFacadeTest {
     }
 
     public static RentalFacade instance() {
-        return new RentalFacade(new SummaryFacade(_ -> Optional.of("description")), new InMemoryMovieRepository());
+        return new RentalFacade(_ -> Optional.of("description"), new InMemoryMovieRepository());
     }
 }

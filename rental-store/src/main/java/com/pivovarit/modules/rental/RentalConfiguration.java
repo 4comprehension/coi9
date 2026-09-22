@@ -9,6 +9,6 @@ class RentalConfiguration {
 
     @Bean
     RentalFacade movieService(SummaryFacade summaryFacade, MovieRepository movieRepository) {
-        return new RentalFacade(summaryFacade, movieRepository);
+        return new RentalFacade(summaryFacade::getSummary, movieRepository);
     }
 }

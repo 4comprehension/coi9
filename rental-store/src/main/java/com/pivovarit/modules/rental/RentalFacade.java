@@ -10,10 +10,10 @@ import java.util.function.Function;
 
 public class RentalFacade {
 
-    private final SummaryFacade summaries;
+    private final SummaryRepository summaries;
     private final MovieRepository movieRepository;
 
-    RentalFacade(SummaryFacade summaries, MovieRepository movieRepository) {
+    RentalFacade(SummaryRepository summaries, MovieRepository movieRepository) {
         this.summaries = summaries;
         this.movieRepository = movieRepository;
     }
