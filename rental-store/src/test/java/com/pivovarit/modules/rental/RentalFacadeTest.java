@@ -2,7 +2,11 @@ package com.pivovarit.modules.rental;
 
 import com.pivovarit.modules.rental.api.MovieAddRequest;
 import com.pivovarit.modules.rental.api.MovieDto;
+import com.pivovarit.modules.summary.MovieSummaryRepository;
+import com.pivovarit.modules.summary.SummaryFacade;
 import org.junit.jupiter.api.RepeatedTest;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,7 +22,7 @@ class RentalFacadeTest {
 
         service.add(movie);
 
-        var expected = new MovieDto(42, "Avengers: Doomsday", "NEW");
+        var expected = new MovieDto(42, "Avengers: Doomsday", "NEW", "description");
 
         assertThat(service.findAll())
           .hasSize(1)
@@ -29,6 +33,6 @@ class RentalFacadeTest {
     }
 
     public static RentalFacade instance() {
-        return new RentalFacade(new InMemoryMovieRepository());
+        return new RentalFacade(new SummaryFacade(_ -> Optional.of("description")), new InMemoryMovieRepository());
     }
 }

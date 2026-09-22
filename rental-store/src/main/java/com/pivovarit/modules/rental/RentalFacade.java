@@ -2,6 +2,7 @@ package com.pivovarit.modules.rental;
 
 import com.pivovarit.modules.rental.api.MovieAddRequest;
 import com.pivovarit.modules.rental.api.MovieDto;
+import com.pivovarit.modules.summary.SummaryFacade;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -9,9 +10,11 @@ import java.util.function.Function;
 
 public class RentalFacade {
 
+    private final SummaryFacade summaries;
     private final MovieRepository movieRepository;
 
-    RentalFacade(MovieRepository movieRepository) {
+    RentalFacade(SummaryFacade summaries, MovieRepository movieRepository) {
+        this.summaries = summaries;
         this.movieRepository = movieRepository;
     }
 
@@ -28,7 +31,11 @@ public class RentalFacade {
         return movieRepository.findAll().stream().map(toDto()).toList();
     }
 
-    private static Function<Movie, MovieDto> toDto() {
-        return m -> new MovieDto(m.id().id(), m.title(), m.type().toString());
+    private Function<Movie, MovieDto> toDto() {
+        return m -> {
+            String summary = summaries.getSummary(m.id().id()).orElse(null);
+
+            return new MovieDto(m.id().id(), m.title(), m.type().toString(), summary);
+        };
     }
 }

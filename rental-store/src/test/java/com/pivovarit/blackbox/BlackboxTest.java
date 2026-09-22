@@ -92,7 +92,8 @@ class BlackboxTest {
           .statusCode(200)
           .body("id", equalTo(42))
           .body("title", equalTo("The Matrix"))
-          .body("type", equalTo("REGULAR"));
+          .body("type", equalTo("REGULAR"))
+          .body("summary", equalTo("A skilled thief who steals secrets through dream-sharing technology is given a chance to have his criminal history erased by planting an idea into a target's subconscious."));
 
         given()
           .port(app.getMappedPort(8080))
