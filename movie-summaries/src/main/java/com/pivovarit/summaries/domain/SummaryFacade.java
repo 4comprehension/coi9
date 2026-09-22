@@ -15,6 +15,6 @@ public final class SummaryFacade {
     }
 
     public boolean createOrUpdate(long movieId, String summary) {
-        return false;
+        return movieSummaryRepository.upsert(movieId, summary);
     }
 }

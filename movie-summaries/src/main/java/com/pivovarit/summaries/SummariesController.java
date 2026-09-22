@@ -4,6 +4,8 @@ import com.pivovarit.summaries.domain.SummaryFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Random;
@@ -28,6 +30,15 @@ class SummariesController {
         }
     }
 
+    @PostMapping("/summaries/{id}")
+    public ResponseEntity<Void> createOrUpdate(@PathVariable int id, @RequestBody CreateOrUpdateRequest request) {
+        boolean created = summaries.createOrUpdate(id, request.summary());
+        return created ? ResponseEntity.status(201).build() : ResponseEntity.ok().build();
+    }
+
     record SummaryResponse(String summary) {
+    }
+
+    record CreateOrUpdateRequest(String summary) {
     }
 }
