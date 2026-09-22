@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 class SummaryConfiguration {
 
     @Bean
-    public SummaryFacade summaryFacade(SummaryEventPublisher summaryEventPublisher) {
-        return new SummaryFacade(new StaticMovieSummaryRepository(), summaryEventPublisher);
+    public SummaryFacade summaryFacade(MovieSummaryRepository movieSummaryRepository, SummaryEventPublisher summaryEventPublisher) {
+        return new SummaryFacade(movieSummaryRepository, summaryEventPublisher);
     }
 }
