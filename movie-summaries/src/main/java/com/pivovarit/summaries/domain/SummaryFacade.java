@@ -2,6 +2,7 @@ package com.pivovarit.summaries.domain;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.postgres.PostgresPlugin;
+import tools.jackson.databind.ObjectMapper;
 
 import javax.sql.DataSource;
 import java.time.Instant;
@@ -12,12 +13,14 @@ public final class SummaryFacade {
     private final MovieSummaryRepository movieSummaryRepository;
     private final SummaryEventPublisher summaryEventPublisher;
     private final OutboxRepository outboxRepository;
+    private final ObjectMapper objectMapper;
     private final Jdbi jdbi;
 
-    public SummaryFacade(MovieSummaryRepository movieSummaryRepository, SummaryEventPublisher summaryEventPublisher, OutboxRepository outboxRepository, DataSource ds) {
+    public SummaryFacade(MovieSummaryRepository movieSummaryRepository, SummaryEventPublisher summaryEventPublisher, OutboxRepository outboxRepository, ObjectMapper objectMapper, DataSource ds) {
         this.movieSummaryRepository = movieSummaryRepository;
         this.summaryEventPublisher = summaryEventPublisher;
         this.outboxRepository = outboxRepository;
+        this.objectMapper = objectMapper;
         this.jdbi = ds != null ? Jdbi.create(ds).installPlugin(new PostgresPlugin()) : null;
     }
 
@@ -28,15 +31,15 @@ public final class SummaryFacade {
     public boolean createOrUpdate(long movieId, String summary) {
         var event = new MovieSummaryUpdatedEvent(movieId, summary, Instant.now());
 
-        boolean created = jdbi != null
-          ? jdbi.inTransaction(handle -> {
-              boolean c = movieSummaryRepository.upsert(handle, movieId, summary);
-              outboxRepository.save(handle, event);
-              return c;
-          })
-          : movieSummaryRepository.upsert(movieId, summary);
+        if (jdbi != null) {
+            // published by OutboxRelay once the write commits — no direct publish here
+            return jdbi.inTransaction(handle -> {
+                boolean created = movieSummaryRepository.upsert(handle, movieId, summary);
+                outboxRepository.save(handle, event);
+                return created;
+            });
+        }
 
-        summaryEventPublisher.publish(event);
-        return created;
+        return movieSummaryRepository.upsert(movieId, summary);
     }
 }
