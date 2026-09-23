@@ -9,6 +9,13 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import javax.sql.DataSource;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,8 +58,8 @@ class JdbiMovieSummaryRepositoryTest {
         var created = repository.upsert(movieId, "first summary");
         var updated = repository.upsert(movieId, "second summary");
 
-        assertThat(created).isEqualTo(1L);
-        assertThat(updated).isEqualTo(2L);
+        assertThat(created).contains(1L);
+        assertThat(updated).contains(2L);
         assertThat(repository.getSummary(movieId)).contains("second summary");
     }
 
@@ -64,6 +71,42 @@ class JdbiMovieSummaryRepositoryTest {
         repository.upsert(movieId, "second summary");
         var version = repository.upsert(movieId, "third summary");
 
-        assertThat(version).isEqualTo(3L);
+        assertThat(version).contains(3L);
+    }
+
+    @Test
+    void shouldReportConflictInsteadOfRetryingOnConcurrentUpdate() throws Exception {
+        var movieId = 3L;
+        int concurrentWriters = 32;
+
+        repository.upsert(movieId, "initial summary");
+
+        ExecutorService executor = Executors.newFixedThreadPool(concurrentWriters);
+        try {
+            var barrier = new CyclicBarrier(concurrentWriters);
+            List<Callable<Optional<Long>>> writes = IntStream.range(0, concurrentWriters)
+              .<Callable<Optional<Long>>>mapToObj(i -> () -> {
+                  barrier.await();
+                  return repository.upsert(movieId, "summary " + i);
+              })
+              .toList();
+
+            var results = executor.invokeAll(writes).stream()
+              .map(future -> {
+                  try {
+                      return future.get();
+                  } catch (Exception e) {
+                      throw new RuntimeException(e);
+                  }
+              })
+              .toList();
+
+            var successfulVersions = results.stream().filter(Optional::isPresent).map(Optional::get).toList();
+
+            assertThat(results).anyMatch(Optional::isEmpty);
+            assertThat(successfulVersions).doesNotHaveDuplicates();
+        } finally {
+            executor.shutdown();
+        }
     }
 }

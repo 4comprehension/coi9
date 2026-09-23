@@ -24,26 +24,55 @@ class JdbiMovieSummaryRepository implements MovieSummaryRepository {
     }
 
     @Override
-    public long upsert(long movieId, String summary) {
+    public Optional<Long> upsert(long movieId, String summary) {
         return jdbi.withHandle(handle -> upsert(handle, movieId, summary));
     }
 
     @Override
-    public long upsert(TransactionContext context, long movieId, String summary) {
+    public Optional<Long> upsert(TransactionContext context, long movieId, String summary) {
         return upsert(((JdbiTransactionContext) context).handle(), movieId, summary);
     }
 
-    private long upsert(Handle handle, long movieId, String summary) {
-        return handle
-          .createQuery("""
-            INSERT INTO movie_summaries (movie_id, summary, version)
-            VALUES (:movieId, :summary, 1)
-            ON CONFLICT (movie_id) DO UPDATE SET summary = excluded.summary, version = movie_summaries.version + 1
-            RETURNING version
+    private Optional<Long> upsert(Handle handle, long movieId, String summary) {
+        Optional<Long> currentVersion = currentVersion(handle, movieId);
+
+        if (currentVersion.isEmpty()) {
+            int inserted = handle
+              .createUpdate("""
+                INSERT INTO movie_summaries (movie_id, summary, version)
+                VALUES (:movieId, :summary, 1)
+                ON CONFLICT (movie_id) DO NOTHING
+                """)
+              .bind("movieId", movieId)
+              .bind("summary", summary)
+              .execute();
+
+            return inserted == 1 ? Optional.of(1L) : Optional.empty();
+        }
+
+        long expectedVersion = currentVersion.get();
+        long nextVersion = expectedVersion + 1;
+
+        int updated = handle
+          .createUpdate("""
+            UPDATE movie_summaries
+            SET summary = :summary, version = :nextVersion
+            WHERE movie_id = :movieId AND version = :expectedVersion
             """)
           .bind("movieId", movieId)
           .bind("summary", summary)
+          .bind("nextVersion", nextVersion)
+          .bind("expectedVersion", expectedVersion)
+          .execute();
+
+        return updated == 1 ? Optional.of(nextVersion) : Optional.empty();
+    }
+
+    private Optional<Long> currentVersion(Handle handle, long movieId) {
+        return handle
+          .createQuery("SELECT version FROM movie_summaries WHERE movie_id = :movieId")
+          .bind("movieId", movieId)
           .mapTo(Long.class)
-          .one();
+          .findFirst();
     }
 }

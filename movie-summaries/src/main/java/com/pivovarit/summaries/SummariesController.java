@@ -37,8 +37,11 @@ class SummariesController {
 
     @PostMapping("/summaries/{id}")
     public ResponseEntity<Void> createOrUpdate(@PathVariable int id, @RequestBody CreateOrUpdateRequest request) {
-        boolean created = summaries.createOrUpdate(id, request.summary());
-        return created ? ResponseEntity.status(201).build() : ResponseEntity.ok().build();
+        return switch (summaries.createOrUpdate(id, request.summary())) {
+            case CREATED -> ResponseEntity.status(201).build();
+            case UPDATED -> ResponseEntity.ok().build();
+            case CONFLICT -> ResponseEntity.status(409).build();
+        };
     }
 
     record SummaryResponse(String summary) {

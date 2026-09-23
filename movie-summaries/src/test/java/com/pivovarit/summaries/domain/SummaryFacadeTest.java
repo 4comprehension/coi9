@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ class SummaryFacadeTest {
         public void remove(long id) {
 
         }
-    }, new NoopTransactionRunner());
+    }, new NoopTransactionRunner(), Clock.systemUTC());
 
     @Test
     @Disabled

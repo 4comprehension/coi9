@@ -26,13 +26,13 @@ public class StaticMovieSummaryRepository implements MovieSummaryRepository {
     }
 
     @Override
-    public long upsert(long movieId, String summary) {
+    public Optional<Long> upsert(long movieId, String summary) {
         summaries.put(movieId, summary);
-        return versions.computeIfAbsent(movieId, id -> new AtomicLong(0)).incrementAndGet();
+        return Optional.of(versions.computeIfAbsent(movieId, id -> new AtomicLong(0)).incrementAndGet());
     }
 
     @Override
-    public long upsert(TransactionContext context, long movieId, String summary) {
+    public Optional<Long> upsert(TransactionContext context, long movieId, String summary) {
         return upsert(movieId, summary);
     }
 }
