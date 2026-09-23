@@ -44,6 +44,7 @@ public class RentalFacade {
         if (currentRentals.size() >= MAX_ACTIVE_RENTALS) {
             throw new RentalLimitExceededException(userEmail, MAX_ACTIVE_RENTALS);
         }
+
         if (!warehouseFacade.reserve(movieId)) {
             throw new MovieNotAvailableException(movieId);
         }
