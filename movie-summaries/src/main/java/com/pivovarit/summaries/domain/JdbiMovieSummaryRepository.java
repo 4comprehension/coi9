@@ -1,5 +1,6 @@
 package com.pivovarit.summaries.domain;
 
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
 import javax.sql.DataSource;
@@ -24,7 +25,12 @@ class JdbiMovieSummaryRepository implements MovieSummaryRepository {
 
     @Override
     public boolean upsert(long movieId, String summary) {
-        return jdbi.withHandle(handle -> handle
+        return jdbi.withHandle(handle -> upsert(handle, movieId, summary));
+    }
+
+    @Override
+    public boolean upsert(Handle handle, long movieId, String summary) {
+        return handle
           .createQuery("""
             INSERT INTO movie_summaries (movie_id, summary)
             VALUES (:movieId, :summary)
@@ -34,6 +40,6 @@ class JdbiMovieSummaryRepository implements MovieSummaryRepository {
           .bind("movieId", movieId)
           .bind("summary", summary)
           .mapTo(Boolean.class)
-          .one());
+          .one();
     }
 }

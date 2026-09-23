@@ -15,7 +15,7 @@ class SummaryDevConfiguration {
 
     @Bean
     OutboxRepository noopOutboxRepository() {
-        return _ -> {
+        return (_, _) -> {
         };
     }
 }

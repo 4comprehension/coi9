@@ -17,7 +17,7 @@ class SummaryProdConfiguration {
     }
 
     @Bean
-    JdbiOutboxRepository jdbiOutboxRepository(DataSource dataSource, ObjectMapper objectMapper) {
-        return new JdbiOutboxRepository(dataSource, objectMapper);
+    JdbiOutboxRepository jdbiOutboxRepository(ObjectMapper objectMapper) {
+        return new JdbiOutboxRepository(objectMapper);
     }
 }
