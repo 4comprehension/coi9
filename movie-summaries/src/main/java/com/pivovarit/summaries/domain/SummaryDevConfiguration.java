@@ -12,4 +12,10 @@ class SummaryDevConfiguration {
     MovieSummaryRepository staticMovieSummaryRepository() {
         return new StaticMovieSummaryRepository();
     }
+
+    @Bean
+    OutboxRepository noopOutboxRepository() {
+        return _ -> {
+        };
+    }
 }

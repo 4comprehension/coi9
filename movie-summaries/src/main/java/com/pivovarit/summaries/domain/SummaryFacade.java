@@ -7,10 +7,12 @@ public final class SummaryFacade {
 
     private final MovieSummaryRepository movieSummaryRepository;
     private final SummaryEventPublisher summaryEventPublisher;
+    private final OutboxRepository outboxRepository;
 
-    public SummaryFacade(MovieSummaryRepository movieSummaryRepository, SummaryEventPublisher summaryEventPublisher) {
+    public SummaryFacade(MovieSummaryRepository movieSummaryRepository, SummaryEventPublisher summaryEventPublisher, OutboxRepository outboxRepository) {
         this.movieSummaryRepository = movieSummaryRepository;
         this.summaryEventPublisher = summaryEventPublisher;
+        this.outboxRepository = outboxRepository;
     }
 
     public Optional<String> getSummary(long movieId) {
@@ -19,7 +21,9 @@ public final class SummaryFacade {
 
     public boolean createOrUpdate(long movieId, String summary) {
         boolean created = movieSummaryRepository.upsert(movieId, summary);
-        summaryEventPublisher.publish(new MovieSummaryUpdatedEvent(movieId, summary, Instant.now()));
+        var event = new MovieSummaryUpdatedEvent(movieId, summary, Instant.now());
+        outboxRepository.save(event);
+        summaryEventPublisher.publish(event);
         return created;
     }
 }

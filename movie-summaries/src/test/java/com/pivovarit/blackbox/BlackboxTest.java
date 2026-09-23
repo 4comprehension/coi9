@@ -131,6 +131,12 @@ class BlackboxTest {
           .isEqualTo("a revised inception summary");
 
         assertPublishedSummaryUpdatedEvent(42L, "a revised inception summary");
+
+        assertThat(Jdbi.create(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())
+          .<Long, RuntimeException>withHandle(handle -> handle
+            .createQuery("SELECT count(*) FROM outbox")
+            .mapTo(Long.class)
+            .one())).isGreaterThan(0);
     }
 
     private void assertPublishedSummaryUpdatedEvent(long expectedMovieId, String expectedSummary) {

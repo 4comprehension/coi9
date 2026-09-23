@@ -11,7 +11,7 @@ class SummaryFacadeTest {
 
     private final List<MovieSummaryUpdatedEvent> publishedEvents = new ArrayList<>();
     private final SummaryEventPublisher publisher = publishedEvents::add;
-    private final SummaryFacade summaryFacade = new SummaryFacade(new StaticMovieSummaryRepository(), publisher);
+    private final SummaryFacade summaryFacade = new SummaryFacade(new StaticMovieSummaryRepository(), publisher, _ -> {});
 
     @Test
     void shouldPublishEventWhenSummaryIsCreatedOrUpdated() {
