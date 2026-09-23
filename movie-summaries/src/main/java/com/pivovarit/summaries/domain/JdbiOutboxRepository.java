@@ -18,7 +18,8 @@ class JdbiOutboxRepository implements OutboxRepository {
     }
 
     @Override
-    public void save(Handle handle, OutboxEvent event) {
+    public void save(TransactionContext context, OutboxEvent event) {
+        Handle handle = ((JdbiTransactionContext) context).handle();
         handle.createUpdate("""
             INSERT INTO outbox(event_type, payload) VALUES (:type, CAST(:payload AS JSON))
             """)

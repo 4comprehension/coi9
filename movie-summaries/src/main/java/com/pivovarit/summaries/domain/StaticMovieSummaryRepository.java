@@ -1,7 +1,5 @@
 package com.pivovarit.summaries.domain;
 
-import org.jdbi.v3.core.Handle;
-
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +28,7 @@ public class StaticMovieSummaryRepository implements MovieSummaryRepository {
     }
 
     @Override
-    public boolean upsert(Handle handle, long movieId, String summary) {
+    public boolean upsert(TransactionContext context, long movieId, String summary) {
         return summaries.put(movieId, summary) == null;
     }
 }

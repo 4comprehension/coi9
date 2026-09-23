@@ -29,7 +29,11 @@ class JdbiMovieSummaryRepository implements MovieSummaryRepository {
     }
 
     @Override
-    public boolean upsert(Handle handle, long movieId, String summary) {
+    public boolean upsert(TransactionContext context, long movieId, String summary) {
+        return upsert(((JdbiTransactionContext) context).handle(), movieId, summary);
+    }
+
+    private boolean upsert(Handle handle, long movieId, String summary) {
         return handle
           .createQuery("""
             INSERT INTO movie_summaries (movie_id, summary)

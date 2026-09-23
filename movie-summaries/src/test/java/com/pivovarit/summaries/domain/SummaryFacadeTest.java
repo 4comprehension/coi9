@@ -1,6 +1,5 @@
 package com.pivovarit.summaries.domain;
 
-import org.jdbi.v3.core.Handle;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
@@ -19,7 +18,7 @@ class SummaryFacadeTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final SummaryFacade summaryFacade = new SummaryFacade(new StaticMovieSummaryRepository(), new OutboxRepository() {
         @Override
-        public void save(Handle handle, OutboxEvent event) {
+        public void save(TransactionContext context, OutboxEvent event) {
 
         }
 
@@ -32,7 +31,7 @@ class SummaryFacadeTest {
         public void remove(long id) {
 
         }
-    }, null);
+    }, new NoopTransactionRunner());
 
     @Test
     @Disabled

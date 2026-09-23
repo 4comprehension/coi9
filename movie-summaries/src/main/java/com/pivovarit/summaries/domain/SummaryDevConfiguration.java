@@ -1,6 +1,5 @@
 package com.pivovarit.summaries.domain;
 
-import org.jdbi.v3.core.Handle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -20,7 +19,7 @@ class SummaryDevConfiguration {
     OutboxRepository noopOutboxRepository() {
         return new OutboxRepository() {
             @Override
-            public void save(Handle handle, OutboxEvent event) {
+            public void save(TransactionContext context, OutboxEvent event) {
             }
 
             @Override
@@ -32,5 +31,10 @@ class SummaryDevConfiguration {
             public void remove(long id) {
             }
         };
+    }
+
+    @Bean
+    TransactionRunner noopTransactionRunner() {
+        return new NoopTransactionRunner();
     }
 }
