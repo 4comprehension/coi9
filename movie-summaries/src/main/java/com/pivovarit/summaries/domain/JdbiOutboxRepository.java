@@ -17,12 +17,12 @@ class JdbiOutboxRepository implements OutboxRepository {
     }
 
     @Override
-    public void save(MovieSummaryUpdatedEvent event) {
+    public void save(OutboxEvent event) {
         jdbi.useHandle(handle -> {
             handle.createUpdate("""
                 INSERT INTO outbox(event_type, payload) VALUES (:type, CAST(:payload AS JSON))
                 """)
-              .bind("type", "MovieSummaryUpdatedEvent")
+              .bind("type", event.getType())
               .bind("payload", objectMapper.writeValueAsString(event))
               .execute();
         });

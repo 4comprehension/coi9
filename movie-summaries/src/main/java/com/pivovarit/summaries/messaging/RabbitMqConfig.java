@@ -1,5 +1,6 @@
 package com.pivovarit.summaries.messaging;
 
+import com.pivovarit.summaries.domain.MovieSummaryUpdatedEvent;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -15,7 +16,6 @@ import org.springframework.context.annotation.Configuration;
 class RabbitMqConfig {
 
     static final String EXCHANGE = "movie-summaries";
-    static final String ROUTING_KEY_SUMMARY_UPDATED = "movie-summary.updated";
     static final String QUEUE_SUMMARY_UPDATED = "movie-summary.updated.queue";
 
     @Bean
@@ -44,6 +44,6 @@ class RabbitMqConfig {
     Binding movieSummaryUpdatedBinding() {
         return BindingBuilder.bind(movieSummaryUpdatedQueue())
           .to(movieSummariesExchange())
-          .with(ROUTING_KEY_SUMMARY_UPDATED);
+          .with(MovieSummaryUpdatedEvent.ROUTING_KEY);
     }
 }

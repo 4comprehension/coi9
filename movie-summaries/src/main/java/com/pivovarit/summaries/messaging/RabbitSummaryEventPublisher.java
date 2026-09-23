@@ -16,6 +16,6 @@ class RabbitSummaryEventPublisher implements SummaryEventPublisher {
 
     @Override
     public void publish(MovieSummaryUpdatedEvent event) {
-        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE, RabbitMqConfig.ROUTING_KEY_SUMMARY_UPDATED, event);
+        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE, MovieSummaryUpdatedEvent.ROUTING_KEY, event);
     }
 }
