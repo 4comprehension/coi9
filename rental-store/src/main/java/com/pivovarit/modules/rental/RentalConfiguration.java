@@ -1,5 +1,6 @@
 package com.pivovarit.modules.rental;
 
+import com.pivovarit.modules.warehouse.WarehouseFacade;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
@@ -8,8 +9,10 @@ import org.springframework.web.client.RestClient;
 class RentalConfiguration {
 
     @Bean
-    RentalFacade movieService(SummaryRepository summaryRepository, MovieRepository movieRepository) {
-        return new RentalFacade(new CachingSummaryRepository(summaryRepository), movieRepository);
+    RentalFacade movieService(SummaryRepository summaryRepository, MovieRepository movieRepository,
+      RentalEventStore rentalEventStore, WarehouseFacade warehouseFacade) {
+        return new RentalFacade(new CachingSummaryRepository(summaryRepository), movieRepository,
+          rentalEventStore, warehouseFacade);
     }
 
     @Bean

@@ -1,8 +1,10 @@
 package com.pivovarit.modules.rental.web;
 
+import com.pivovarit.modules.rental.MovieId;
 import com.pivovarit.modules.rental.api.MovieAddRequest;
 import com.pivovarit.modules.rental.api.MovieDto;
 import com.pivovarit.modules.rental.RentalFacade;
+import com.pivovarit.modules.rental.api.RentalOperationRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,5 +43,15 @@ class MovieController {
     @PostMapping("/movies")
     public void addMovie(@RequestBody MovieAddRequest newMovie) {
         this.movieService.add(newMovie);
+    }
+
+    @PostMapping("/rentals/rent")
+    public void rent(@RequestBody RentalOperationRequest request) {
+        movieService.rent(new MovieId(request.movieId()), request.email());
+    }
+
+    @PostMapping("/rentals/return")
+    public void returnMovie(@RequestBody RentalOperationRequest request) {
+        movieService.returnMovie(new MovieId(request.movieId()), request.email());
     }
 }

@@ -20,6 +20,11 @@ class RentalProdConfiguration {
     }
 
     @Bean
+    RentalEventStore jdbiRentalEventStore(DataSource dataSource) {
+        return new JdbiRentalEventStore(dataSource);
+    }
+
+    @Bean
     RestClientSummaryRepository restClientSummaryRepository(
       RestClient.Builder restClientBuilder,
       @Value("${service.summaries.url}") URI uri) {

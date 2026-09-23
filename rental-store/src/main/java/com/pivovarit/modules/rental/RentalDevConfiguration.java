@@ -19,4 +19,9 @@ class RentalDevConfiguration {
     MovieRepository inMemoryMovieRepository() {
         return new InMemoryMovieRepository();
     }
+
+    @Bean
+    RentalEventStore inMemoryRentalEventStore() {
+        return new InMemoryRentalEventStore();
+    }
 }
