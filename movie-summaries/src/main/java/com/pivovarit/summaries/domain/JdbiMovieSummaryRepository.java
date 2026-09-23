@@ -30,7 +30,7 @@ class JdbiMovieSummaryRepository implements MovieSummaryRepository {
 
     @Override
     public Optional<Long> upsert(TransactionContext context, long movieId, String summary) {
-        return upsert(((JdbiTransactionContext) context).handle(), movieId, summary);
+        return upsert(JdbiTransactionContext.handleOf(context), movieId, summary);
     }
 
     private Optional<Long> upsert(Handle handle, long movieId, String summary) {

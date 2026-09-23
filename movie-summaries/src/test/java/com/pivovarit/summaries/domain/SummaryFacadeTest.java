@@ -30,7 +30,6 @@ class SummaryFacadeTest {
 
         @Override
         public void remove(long id) {
-
         }
     }, new NoopTransactionRunner(), Clock.systemUTC());
 
