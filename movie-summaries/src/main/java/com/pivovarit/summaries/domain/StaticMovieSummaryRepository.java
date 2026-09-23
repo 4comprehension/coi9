@@ -3,10 +3,12 @@ package com.pivovarit.summaries.domain;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class StaticMovieSummaryRepository implements MovieSummaryRepository {
 
     private final Map<Long, String> summaries = new ConcurrentHashMap<>();
+    private final Map<Long, AtomicLong> versions = new ConcurrentHashMap<>();
 
     StaticMovieSummaryRepository() {
         summaries.putAll(Map.of(
@@ -15,6 +17,7 @@ public class StaticMovieSummaryRepository implements MovieSummaryRepository {
           3L, "In wartime Casablanca, a cynical nightclub owner must decide whether to help his former lover and her fugitive husband escape the Nazis.",
           42L, "A skilled thief who steals secrets through dream-sharing technology is given a chance to have his criminal history erased by planting an idea into a target's subconscious."
         ));
+        summaries.keySet().forEach(movieId -> versions.put(movieId, new AtomicLong(1)));
     }
 
     @Override
@@ -23,12 +26,13 @@ public class StaticMovieSummaryRepository implements MovieSummaryRepository {
     }
 
     @Override
-    public boolean upsert(long movieId, String summary) {
-        return summaries.put(movieId, summary) == null;
+    public long upsert(long movieId, String summary) {
+        summaries.put(movieId, summary);
+        return versions.computeIfAbsent(movieId, id -> new AtomicLong(0)).incrementAndGet();
     }
 
     @Override
-    public boolean upsert(TransactionContext context, long movieId, String summary) {
-        return summaries.put(movieId, summary) == null;
+    public long upsert(TransactionContext context, long movieId, String summary) {
+        return upsert(movieId, summary);
     }
 }

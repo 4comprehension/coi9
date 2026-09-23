@@ -24,26 +24,26 @@ class JdbiMovieSummaryRepository implements MovieSummaryRepository {
     }
 
     @Override
-    public boolean upsert(long movieId, String summary) {
+    public long upsert(long movieId, String summary) {
         return jdbi.withHandle(handle -> upsert(handle, movieId, summary));
     }
 
     @Override
-    public boolean upsert(TransactionContext context, long movieId, String summary) {
+    public long upsert(TransactionContext context, long movieId, String summary) {
         return upsert(((JdbiTransactionContext) context).handle(), movieId, summary);
     }
 
-    private boolean upsert(Handle handle, long movieId, String summary) {
+    private long upsert(Handle handle, long movieId, String summary) {
         return handle
           .createQuery("""
-            INSERT INTO movie_summaries (movie_id, summary)
-            VALUES (:movieId, :summary)
-            ON CONFLICT (movie_id) DO UPDATE SET summary = excluded.summary
-            RETURNING (xmax = 0) AS inserted
+            INSERT INTO movie_summaries (movie_id, summary, version)
+            VALUES (:movieId, :summary, 1)
+            ON CONFLICT (movie_id) DO UPDATE SET summary = excluded.summary, version = movie_summaries.version + 1
+            RETURNING version
             """)
           .bind("movieId", movieId)
           .bind("summary", summary)
-          .mapTo(Boolean.class)
+          .mapTo(Long.class)
           .one();
     }
 }

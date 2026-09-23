@@ -45,6 +45,7 @@ class SummaryFacadeTest {
               var event = objectMapper.readValue(published.payload(), MovieSummaryUpdatedEvent.class);
               assertThat(event.movieId()).isEqualTo(1L);
               assertThat(event.summary()).isEqualTo("an updated summary");
+              assertThat(event.version()).isEqualTo(2L);
           });
     }
 }

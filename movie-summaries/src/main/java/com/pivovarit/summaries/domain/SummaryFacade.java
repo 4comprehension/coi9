@@ -20,12 +20,11 @@ public final class SummaryFacade {
     }
 
     public boolean createOrUpdate(long movieId, String summary) {
-        var event = new MovieSummaryUpdatedEvent(movieId, summary, Instant.now());
-
         return transactionRunner.inTransaction(context -> {
-            boolean created = movieSummaryRepository.upsert(context, movieId, summary);
+            long version = movieSummaryRepository.upsert(context, movieId, summary);
+            var event = new MovieSummaryUpdatedEvent(movieId, summary, version, Instant.now());
             outboxRepository.save(context, event);
-            return created;
+            return version == 1;
         });
     }
 }

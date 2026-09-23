@@ -51,8 +51,19 @@ class JdbiMovieSummaryRepositoryTest {
         var created = repository.upsert(movieId, "first summary");
         var updated = repository.upsert(movieId, "second summary");
 
-        assertThat(created).isTrue();
-        assertThat(updated).isFalse();
+        assertThat(created).isEqualTo(1L);
+        assertThat(updated).isEqualTo(2L);
         assertThat(repository.getSummary(movieId)).contains("second summary");
+    }
+
+    @Test
+    void shouldBumpVersionOnEveryUpsert() {
+        var movieId = 2L;
+
+        repository.upsert(movieId, "first summary");
+        repository.upsert(movieId, "second summary");
+        var version = repository.upsert(movieId, "third summary");
+
+        assertThat(version).isEqualTo(3L);
     }
 }

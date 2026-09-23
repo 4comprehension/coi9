@@ -109,7 +109,7 @@ class BlackboxTest {
           "movie_id", 42L,
           "summary", "an inception summary"));
 
-        assertPublishedSummaryUpdatedEvent(42L, "an inception summary");
+        assertPublishedSummaryUpdatedEvent(42L, "an inception summary", 1L);
 
         given()
           .port(app.getMappedPort(APP_PORT))
@@ -130,10 +130,10 @@ class BlackboxTest {
             .one()))
           .isEqualTo("a revised inception summary");
 
-        assertPublishedSummaryUpdatedEvent(42L, "a revised inception summary");
+        assertPublishedSummaryUpdatedEvent(42L, "a revised inception summary", 2L);
     }
 
-    private void assertPublishedSummaryUpdatedEvent(long expectedMovieId, String expectedSummary) {
+    private void assertPublishedSummaryUpdatedEvent(long expectedMovieId, String expectedSummary, long expectedVersion) {
         var message = rabbitTemplate.receive(QUEUE_SUMMARY_UPDATED, 5000);
 
         assertThat(message).isNotNull();
@@ -141,6 +141,7 @@ class BlackboxTest {
         var event = new ObjectMapper().readValue(message.getBody(), Map.class);
         assertThat(((Number) event.get("movieId")).longValue()).isEqualTo(expectedMovieId);
         assertThat(event.get("summary")).isEqualTo(expectedSummary);
+        assertThat(((Number) event.get("version")).longValue()).isEqualTo(expectedVersion);
     }
 
     private static class ApplicationContainer extends GenericContainer<ApplicationContainer> {
