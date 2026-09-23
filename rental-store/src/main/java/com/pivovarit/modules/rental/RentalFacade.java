@@ -37,7 +37,7 @@ public class RentalFacade {
 
     public void onMovieSummaryChanged(MovieSummaryUpdatedEvent event) {
         log.info("received summary update for movieId={}", event.movieId());
-        summaries.updateSummary(event.movieId(), event.summary());
+        summaries.updateSummary(event.movieId(), event.version(), event.summary());
     }
 
     private Function<Movie, MovieDto> toDto() {

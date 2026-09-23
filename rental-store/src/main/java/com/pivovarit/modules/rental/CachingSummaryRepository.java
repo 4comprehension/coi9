@@ -13,7 +13,7 @@ class CachingSummaryRepository implements SummaryRepository {
     private static final Logger log = LoggerFactory.getLogger(CachingSummaryRepository.class);
 
     private final SummaryRepository delegate;
-    private final Cache<Long, String> cache;
+    private final Cache<Long, VersionedSummary> cache;
 
     CachingSummaryRepository(SummaryRepository delegate) {
         this.delegate = delegate;
@@ -33,15 +33,26 @@ class CachingSummaryRepository implements SummaryRepository {
         }
 
         if (summary.isPresent()) {
-            cache.put(movieId, summary.get());
+            cache.put(movieId, new VersionedSummary(0, summary.get()));
             return summary;
         }
 
-        return Optional.ofNullable(cache.getIfPresent(movieId));
+        return Optional.ofNullable(cache.getIfPresent(movieId))
+          .map(VersionedSummary::summary);
     }
 
-    public void updateSummary(long movieId, String summary) {
-        log.info("refreshing cache for movie id: {}", movieId);
-        cache.put(movieId, summary);
+    public void updateSummary(long movieId, long version, String summary) {
+        var incoming = new VersionedSummary(version, summary);
+        var current = cache.asMap().merge(movieId, incoming,
+          (existing, candidate) -> candidate.version() > existing.version() ? candidate : existing);
+
+        if (current == incoming) {
+            log.info("refreshing cache for movie id: {}, version: {}", movieId, version);
+        } else {
+            log.info("ignoring stale summary update for movie id: {}, incoming version: {}, current version: {}", movieId, version, current.version());
+        }
+    }
+
+    record VersionedSummary(long version, String summary) {
     }
 }
