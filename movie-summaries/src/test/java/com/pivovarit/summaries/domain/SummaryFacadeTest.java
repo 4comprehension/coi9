@@ -16,9 +16,8 @@ class SummaryFacadeTest {
     }
 
     private final List<PublishedEvent> publishedEvents = new ArrayList<>();
-    private final SummaryEventPublisher publisher = (type, payload) -> publishedEvents.add(new PublishedEvent(type, payload));
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final SummaryFacade summaryFacade = new SummaryFacade(new StaticMovieSummaryRepository(), publisher, new OutboxRepository() {
+    private final SummaryFacade summaryFacade = new SummaryFacade(new StaticMovieSummaryRepository(), new OutboxRepository() {
         @Override
         public void save(Handle handle, OutboxEvent event) {
 
@@ -33,7 +32,7 @@ class SummaryFacadeTest {
         public void remove(long id) {
 
         }
-    }, objectMapper, null);
+    }, null);
 
     @Test
     @Disabled
