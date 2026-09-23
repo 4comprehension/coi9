@@ -5,12 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class Application {
-    // 1. dodać tabelę outbox do movie-summaries, która będzie robiła za 'skrzynkę nadawczą' z eventami
-    // checkpoint (dyskutujemy)
-    // 2. zapis w jednej tx do tabeli z opisami oraz outbox (+ blackbox test)
-    // checkpoint (dyskutujemy)
-    // 3. event processor, który wyłapuje eventy i wrzuca do rabbitmq
-    // checkpoint (dyskutujemy)
+    // 1. rozszerzyć HelloScheduler do pełoprawnego event relaya
+    // 2. powinien w pętli znajdywać eventy w outboxie, wrzucać je do rabbita, i potem usuwać z outboxa
+    // 3. usuwamy dodatkowe ręczne wysyłanie eventów
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
