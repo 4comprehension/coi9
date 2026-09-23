@@ -14,10 +14,10 @@ public class RentalFacade {
 
     private static final Logger log = LoggerFactory.getLogger(RentalFacade.class);
 
-    private final SummaryRepository summaries;
+    private final CachingSummaryRepository summaries;
     private final MovieRepository movieRepository;
 
-    RentalFacade(SummaryRepository summaries, MovieRepository movieRepository) {
+    RentalFacade(CachingSummaryRepository summaries, MovieRepository movieRepository) {
         this.summaries = summaries;
         this.movieRepository = movieRepository;
     }
@@ -37,6 +37,7 @@ public class RentalFacade {
 
     public void onMovieSummaryChanged(MovieSummaryUpdatedEvent event) {
         log.info("received summary update for movieId={}", event.movieId());
+        summaries.updateSummary(event.movieId(), event.summary());
     }
 
     private Function<Movie, MovieDto> toDto() {

@@ -12,16 +12,7 @@ class RentalDevConfiguration {
 
     @Bean
     SummaryRepository inMemorySummaryRepository() {
-        return new SummaryRepository() {
-            @Override
-            public Optional<String> getSummary(long movieId) {
-                return Optional.of("");
-            }
-
-            @Override
-            public void updateSummary(long movieId, String summary) {
-            }
-        };
+        return _ -> Optional.of("");
     }
 
     @Bean

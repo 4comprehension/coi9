@@ -36,10 +36,6 @@ class RestClientSummaryRepository implements SummaryRepository {
         }
     }
 
-    @Override
-    public void updateSummary(long movieId, String summary) {
-    }
-
     record SummaryResponse(String summary) {
     }
 }

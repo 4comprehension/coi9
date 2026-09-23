@@ -31,15 +31,6 @@ class RentalFacadeTest {
     }
 
     public static RentalFacade instance() {
-        return new RentalFacade(new SummaryRepository() {
-            @Override
-            public Optional<String> getSummary(long movieId) {
-                return Optional.of("description");
-            }
-
-            @Override
-            public void updateSummary(long movieId, String summary) {
-            }
-        }, new InMemoryMovieRepository());
+        return new RentalFacade(new CachingSummaryRepository(_ -> Optional.of("description")), new InMemoryMovieRepository());
     }
 }

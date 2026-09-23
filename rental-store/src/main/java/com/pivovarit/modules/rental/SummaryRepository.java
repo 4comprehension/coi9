@@ -4,5 +4,4 @@ import java.util.Optional;
 
 interface SummaryRepository {
     Optional<String> getSummary(long movieId);
-    void updateSummary(long movieId, String summary);
 }

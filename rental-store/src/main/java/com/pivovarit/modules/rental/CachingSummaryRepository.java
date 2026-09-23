@@ -13,7 +13,7 @@ class CachingSummaryRepository implements SummaryRepository {
     private static final Logger log = LoggerFactory.getLogger(CachingSummaryRepository.class);
 
     private final SummaryRepository delegate;
-    private final Cache<Long, Optional<String>> cache;
+    private final Cache<Long, String> cache;
 
     CachingSummaryRepository(SummaryRepository delegate) {
         this.delegate = delegate;
@@ -33,16 +33,15 @@ class CachingSummaryRepository implements SummaryRepository {
         }
 
         if (summary.isPresent()) {
-            cache.put(movieId, summary);
+            cache.put(movieId, summary.get());
             return summary;
         }
 
-        return cache.getIfPresent(movieId);
+        return Optional.ofNullable(cache.getIfPresent(movieId));
     }
 
-    @Override
     public void updateSummary(long movieId, String summary) {
         log.info("refreshing cache for movie id: {}", movieId);
-        cache.put(movieId, Optional.of(summary));
+        cache.put(movieId, summary);
     }
 }
